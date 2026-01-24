@@ -1,0 +1,467 @@
+[
+    {
+        "id": "17918d4961f35716",
+        "type": "tab",
+        "label": "Google Business Lead Extractor",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "81e5f66550d237d0",
+        "type": "ui_tab",
+        "name": "Lead Generator",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "bd46b89199bf3bdb",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-dark",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#0d6efd",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#097479",
+                    "value": "#0d6efd",
+                    "edited": true
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0d6efd",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#599bfe",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#555555",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#eeeeee",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0d6efd",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "Lead Generator",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 16,
+                "gy": 16,
+                "cx": 12,
+                "cy": 12,
+                "px": 12,
+                "py": 12
+            }
+        }
+    },
+    {
+        "id": "302d4e94199c9880",
+        "type": "ui_group",
+        "name": "Search",
+        "tab": "81e5f66550d237d0",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2e9bdffe74ea9b5e",
+        "type": "function",
+        "z": "17918d4961f35716",
+        "name": "Prepare Serper Request",
+        "func": "msg.headers = {\n    \"X-API-KEY\": \"f4c6153d54a7d105f0f5d1bb321be1c0a7c8fb22\",\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    q: msg.payload,\n    gl: \"in\",\n    hl: \"en\",\n    type: \"places\",   \n    num: 20\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 270,
+        "y": 340,
+        "wires": [
+            [
+                "86aee3e044a77786"
+            ]
+        ]
+    },
+    {
+        "id": "86aee3e044a77786",
+        "type": "http request",
+        "z": "17918d4961f35716",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://google.serper.dev/search",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 490,
+        "y": 160,
+        "wires": [
+            [
+                "875bce1b4883669b"
+            ]
+        ]
+    },
+    {
+        "id": "875bce1b4883669b",
+        "type": "function",
+        "z": "17918d4961f35716",
+        "name": "EXTRACT BUSINESS DATA",
+        "func": "let businesses = [];\n\nlet places = msg.payload.places || [];\n\nplaces.forEach(item => {\n   businesses.push({\n    name: item.title || \"\",\n    phone: item.phoneNumber || \"\",\n    website: item.website || \"\",\n    hasWebsite: item.website ? \"Yes\" : \"No\",\n    address: item.address || \"\",\n    category: item.category || \"\",\n    rating: item.rating || \"\",\n    ratingCount: item.ratingCount || \"\"\n});\n\n});\n\nmsg.payload = businesses;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 360,
+        "wires": [
+            [
+                "ff1da9a47a3943a9"
+            ]
+        ]
+    },
+    {
+        "id": "ff1da9a47a3943a9",
+        "type": "function",
+        "z": "17918d4961f35716",
+        "name": "Add Email",
+        "func": "msg.payload = msg.payload.map(b => {\n    b.email = \"\";\n    return b;\n});\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 180,
+        "wires": [
+            [
+                "e9f13e35ee2b96c6"
+            ]
+        ]
+    },
+    {
+        "id": "e9f13e35ee2b96c6",
+        "type": "csv",
+        "z": "17918d4961f35716",
+        "name": "",
+        "spec": "rfc",
+        "sep": ",",
+        "hdrin": "",
+        "hdrout": "none",
+        "multi": "one",
+        "ret": "\\r\\n",
+        "temp": "name,phone,email,website,hasWebsite,address,category,rating,ratingCount",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 1150,
+        "y": 360,
+        "wires": [
+            [
+                "12c6303313662d43"
+            ]
+        ]
+    },
+    {
+        "id": "12c6303313662d43",
+        "type": "file",
+        "z": "17918d4961f35716",
+        "name": "leads.csv",
+        "filename": "/data/leads.csv",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "utf8",
+        "x": 1340,
+        "y": 180,
+        "wires": [
+            [
+                "924582799fc8a580"
+            ]
+        ]
+    },
+    {
+        "id": "601b9543a0cfdb0e",
+        "type": "ui_text_input",
+        "z": "17918d4961f35716",
+        "name": "Search Input",
+        "label": "Enter search query",
+        "tooltip": "",
+        "group": "302d4e94199c9880",
+        "order": 0,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "mode": "text",
+        "delay": "0",
+        "topic": "",
+        "sendOnBlur": false,
+        "className": "",
+        "topicType": "str",
+        "x": 130,
+        "y": 700,
+        "wires": [
+            [
+                "99cfca27afcd2cae"
+            ]
+        ]
+    },
+    {
+        "id": "89075493005ef631",
+        "type": "ui_button",
+        "z": "17918d4961f35716",
+        "name": "Search Button",
+        "group": "302d4e94199c9880",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "🔍 Generate Leads",
+        "tooltip": "",
+        "color": "white",
+        "bgcolor": "#0d6efd",
+        "className": "",
+        "icon": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "topic": "",
+        "topicType": "str",
+        "x": 120,
+        "y": 600,
+        "wires": [
+            [
+                "99cfca27afcd2cae"
+            ]
+        ]
+    },
+    {
+        "id": "99cfca27afcd2cae",
+        "type": "function",
+        "z": "17918d4961f35716",
+        "name": "Build Search Payload",
+        "func": "// Store latest text input\nif (typeof msg.payload === \"string\") {\n    flow.set(\"searchQuery\", msg.payload);\n    return null; // wait for button click\n}\n\n// Button click arrives here\nlet query = flow.get(\"searchQuery\");\n\nif (!query) {\n    node.warn(\"No search query entered\");\n    return null;\n}\n\nmsg.payload = query;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 640,
+        "wires": [
+            [
+                "2e9bdffe74ea9b5e"
+            ]
+        ]
+    },
+    {
+        "id": "d012838f336330e6",
+        "type": "ui_text",
+        "z": "17918d4961f35716",
+        "group": "302d4e94199c9880",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "Status Message",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 1520,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "924582799fc8a580",
+        "type": "function",
+        "z": "17918d4961f35716",
+        "name": "Show Success",
+        "func": "msg.payload = \"✅ Leads generated successfully\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1380,
+        "y": 380,
+        "wires": [
+            [
+                "d012838f336330e6"
+            ]
+        ]
+    },
+    {
+        "id": "ee126132ad0e1352",
+        "type": "file in",
+        "z": "17918d4961f35716",
+        "name": "Read File",
+        "filename": "/data/leads.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "utf8",
+        "allProps": false,
+        "x": 640,
+        "y": 760,
+        "wires": [
+            [
+                "d2e469f3df404ef6"
+            ]
+        ]
+    },
+    {
+        "id": "fba079919c6b421e",
+        "type": "http response",
+        "z": "17918d4961f35716",
+        "name": "http response",
+        "statusCode": "200",
+        "headers": {},
+        "x": 1160,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "d2e469f3df404ef6",
+        "type": "function",
+        "z": "17918d4961f35716",
+        "name": "Prepare Download",
+        "func": "msg.headers = {\n    \"Content-Type\": \"text/csv\",\n    \"Content-Disposition\": \"attachment; filename=leads.csv\"\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 900,
+        "wires": [
+            [
+                "fba079919c6b421e"
+            ]
+        ]
+    },
+    {
+        "id": "32ad068f630e3450",
+        "type": "http in",
+        "z": "17918d4961f35716",
+        "name": "",
+        "url": "/download",
+        "method": "get",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 440,
+        "y": 880,
+        "wires": [
+            [
+                "ee126132ad0e1352"
+            ]
+        ]
+    },
+    {
+        "id": "53a16779e4b13bc8",
+        "type": "ui_template",
+        "z": "17918d4961f35716",
+        "group": "",
+        "name": "Global UI Style",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\n    /* ===== FORCE FULL PAGE CENTERING ===== */\n    html,\n    body {\n        height: 100%;\n        margin: 0;\n    }\n\n    /* Center dashboard content */\n    .nr-dashboard {\n        display: flex !important;\n        justify-content: center !important;\n    }\n\n    /* ===== MAIN GREY CARD (BIG & PROFESSIONAL) ===== */\n    .nr-dashboard-card {\n        width: 900px !important;\n        /* PC SIZE */\n        max-width: 95% !important;\n        min-height: 450px !important;\n\n        background: #2f2f2f !important;\n        border-radius: 22px !important;\n        padding: 40px !important;\n\n        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6) !important;\n    }\n\n    /* ===== CARD TITLE ===== */\n    .nr-dashboard-cardtitle {\n        font-size: 26px !important;\n        font-weight: 600 !important;\n        color: #60a5fa !important;\n        text-align: center !important;\n        margin-bottom: 30px !important;\n    }\n\n    /* ===== INPUT FIELD ===== */\n    md-input-container {\n        width: 100% !important;\n    }\n\n    md-input-container input {\n        height: 58px !important;\n        font-size: 16px !important;\n        padding: 16px 18px !important;\n        border-radius: 12px !important;\n        box-sizing: border-box !important;\n    }\n\n    /* ===== BUTTONS ===== */\n    md-button {\n        width: 100% !important;\n        height: 54px !important;\n        font-size: 16px !important;\n        border-radius: 14px !important;\n        margin-top: 18px !important;\n    }\n\n    /* Generate button */\n    md-button.md-raised {\n        background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;\n        color: #fff !important;\n    }\n\n    /* Download button */\n    md-button.md-accent {\n        background: linear-gradient(135deg, #16a34a, #15803d) !important;\n        color: #fff !important;\n    }\n\n    /* ===== STATUS MESSAGE ===== */\n    .nr-dashboard-text {\n        text-align: center !important;\n        font-size: 15px !important;\n        margin-top: 18px !important;\n    }\n</style>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "global",
+        "className": "",
+        "x": 160,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c053f71cd8f71d79",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
